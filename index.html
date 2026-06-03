@@ -1150,6 +1150,11 @@
       color: var(--purple);
       border-bottom-color: var(--purple);
     }
+    .footer-links button { text-decoration: none; font-size: .82rem; font-weight: 300; letter-spacing: .08em; color: var(--text); display: flex; align-items: center; gap: .4rem; border: none; background: none; cursor: pointer; border-bottom: 1px solid transparent; padding-bottom: 2px; transition: color .2s, border-color .2s; font-family: inherit; }
+    .footer-links button:hover { color: var(--purple); border-bottom-color: var(--purple); }
+    .footer-center { display: flex; flex-direction: column; align-items: center; }
+    .footer-toast { font-family: 'Poppins', sans-serif; font-size: .75rem; font-weight: 500; letter-spacing: .04em; color: var(--purple); pointer-events: none; opacity: 0; transform: translateY(-0.3rem); transition: opacity .22s ease, transform .22s ease; height: 1.2rem; display: flex; align-items: center; justify-content: center; margin-top: calc(.45rem + 16px); }
+    .footer-toast.show { opacity: 1; transform: translateY(0); }
     .footer-copy {
       font-size: .72rem;
       font-weight: 300;
@@ -1813,23 +1818,14 @@
 <!-- ════════════════════════ FOOTER / CONTACT ═══════════════ -->
 <footer id="contact">
   <div class="footer-name">Jami <span>Yalan</span></div>
-  <ul class="footer-links">
-    <li>
-      <a href="https://www.linkedin.com/in/jam-yln/" target="_blank" rel="noopener noreferrer">
-        ↗ LinkedIn
-      </a>
-    </li>
-    <li>
-      <a href="https://medium.com/@jam.yaln" target="_blank" rel="noopener noreferrer">
-        ↗ Medium
-      </a>
-    </li>
-    <li>
-      <a href="/cdn-cgi/l/email-protection#066c676b287f676a6846616b676f6a2865696b">
-        → Email
-      </a>
-    </li>
-  </ul>
+  <div class="footer-center">
+    <ul class="footer-links">
+      <li><a href="https://www.linkedin.com/in/jam-yln/" target="_blank" rel="noopener noreferrer">↗ LinkedIn</a></li>
+      <li><a href="https://medium.com/@jam.yaln" target="_blank" rel="noopener noreferrer">↗ Medium</a></li>
+      <li><button onclick="copyEmailFooter()">→ Email</button></li>
+    </ul>
+    <div class="footer-toast" id="footerToast">Copiado ✓</div>
+  </div>
   <div class="footer-copy">© 2026 Jami Yalan</div>
 </footer>
 
@@ -1871,6 +1867,15 @@
         }, 2200);
       });
     });
+  }
+
+  /* ── Copy email footer ──────────────────────────────────── */
+  function copyEmailFooter() {
+    navigator.clipboard.writeText('jam.yaln@gmail.com').catch(() => {});
+    const toast = document.getElementById('footerToast');
+    if (!toast) return;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2200);
   }
 
   /* ── Mobile nav ─────────────────────────────────────────── */
@@ -2078,17 +2083,14 @@
 
   /* ── Case study accordion ───────────────────────────────── */
   function toggleCase(header) {
-    const card    = header.closest('.case-card');
-    const isOpen  = card.classList.contains('open');
-    const targetY = card.getBoundingClientRect().top;
+    const card   = header.closest('.case-card');
+    const isOpen = card.classList.contains('open');
     document.querySelectorAll('.case-card.open').forEach(c => c.classList.remove('open'));
-    if (!isOpen) { card.classList.add('open'); setTimeout(seekPosterFrames, 120); }
-    const end = performance.now() + 560;
-    (function pin() {
-      const diff = card.getBoundingClientRect().top - targetY;
-      if (Math.abs(diff) > 0.5) window.scrollBy({ top: diff, behavior: 'instant' });
-      if (performance.now() < end) requestAnimationFrame(pin);
-    })();
+    if (!isOpen) {
+      card.classList.add('open');
+      setTimeout(seekPosterFrames, 120);
+      requestAnimationFrame(() => card.scrollIntoView({ behavior: 'instant', block: 'start' }));
+    }
   }
 
   /* ── Intersection Observer → fade-up ────────────────────── */
